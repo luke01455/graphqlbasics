@@ -19,19 +19,22 @@ const users = [{
 
 const posts = [{
      id: '1',
-     title: ' hi there ',
+     title: 'GraphQL 101',
      body: ' hi there im james ',
-     published: true
+     published: true,
+     author: '1'
 }, {
     id: '2',
-    title: 'im new',
+    title: 'GraphQL 201',
     body: 'hey ghyyyus',
-    published: false
+    published: false,
+    author: '1'
 }, {
     id: '3',
-    title: 'Suggestion',
-    body: 'Make the title red',
-    published: true
+    title: 'Prgramming music',
+    body: '',
+    published: false,
+    author: '2'
 }
     
 ]
@@ -43,12 +46,13 @@ const typeDefs = `
         post: Post!
         me: User!
     }
-    
+
     type User {
         id: ID!
         name: String!
         email: String!
         age: Int
+        posts: [Post!]!
     }
 
     type Post {
@@ -56,6 +60,7 @@ const typeDefs = `
         title: String!
         body: String!
         published: Boolean!
+        author: User!
     }
 `
 
@@ -67,7 +72,7 @@ const resolvers = {
                 return posts
             }
         
-        posts.filter((post) => {
+            return posts.filter((post) => {
             const isTitleMatch = post.title.toLowerCase().includes(args.query.toLowerCase())
             const isBodyMatch = post.body.toLowerCase().includes(args.query.toLowerCase())
             return isTitleMatch || isBodyMatch
@@ -97,6 +102,20 @@ const resolvers = {
                 body: 'message to the world',
                 published: true
             }
+        }
+    },
+    Post: {
+        author(parent, args, ctx, info) {
+            return users.find((user) => {
+                return user.id === parent.author
+            })
+        }
+    },
+    User: {
+        posts(parent, args, ctx, info) {
+           return posts.filter((post) => {
+               return post.author === parent.id
+           })
         }
     }
 }
